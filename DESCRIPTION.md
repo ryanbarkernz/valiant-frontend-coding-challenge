@@ -19,5 +19,6 @@ Notes / Assumptions:
 - No caching as data retrieved contains rates that are likely critical to keep up to date. Small dataset though future iterations could cache the other two endpoints.
 - Few things could be componentised. EG would be nice to move fetch logic outside of the main App. Could use a composable or vue-query
 - I've left the entire PrimeVue package/presets in - would tidy this up if it was going somewhere important
+- I haven't included tests as I've run over time ;)
 
 Side note: the doc explaining the PMT function has restricted access
