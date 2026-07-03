@@ -22,3 +22,9 @@ Notes / Assumptions:
 - I haven't included tests as I've run over time ;)
 
 Side note: the doc explaining the PMT function has restricted access
+
+2026 UPDATES ----------------
+
+- Refactor styles and remove overkill style library
+- Add a bit more flair to design
+- Include tests
