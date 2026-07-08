@@ -4,6 +4,11 @@ module.exports = {
     'plugin:vue/vue3-recommended',
     'plugin:cypress/recommended',
   ],
+  settings: {
+    tailwindcss: {
+      whitelist: ['dark', 'theme-dark', 'theme-light', 'custom-card', 'custom-input', 'sentence-text', 'autogrow-container', 'autogrow-amount', 'select-sentence'],
+    },
+  },
   overrides: [
     {
       files: [

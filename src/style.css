@@ -1,5 +1,217 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    --accent-color: #222222;
+    --accent-color-light: rgba(34, 34, 34, 0.1);
+    --card-padding: 24px;
+    --border-radius: 12px;
+    --font-family: 'Geist', sans-serif;
+    --font-title: 'Libre Caslon Text', serif;
+    
+    --bg-color: #ffffff;
+    --text-main: #0f172a;
+    --text-muted: #475569;
+    --border-color: #e2e8f0;
+    --input-bg: #f8fafc;
+    --shadow-color: rgba(15, 23, 42, 0.08);
+  }
+
+  body {
+    font-family: var(--font-family);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-title);
+    color: var(--font-title-color, var(--text-main));
+    letter-spacing: 0.1px;
+  }
+}
+
+/* Theme Classes */
+.theme-light {
+  --bg-color: #f8f8ff;
+  --text-main: #222222;
+  --text-muted: #666666;
+  --border-color: #d8d8e5;
+  --input-bg: #ffffff;
+  --shadow-color: rgba(34, 34, 34, 0.05);
+  --font-title-color: var(--accent-color);
+
+  --accent-color: var(--accent-color-light-val, #222222);
+  --accent-color-light: var(--accent-color-light-bg, rgba(34, 34, 34, 0.1));
+}
+
+.theme-dark {
+  --bg-color: #262c2d;
+  --text-main: #ffffff;
+  --text-muted: #a8adaf;
+  --border-color: #373f41;
+  --input-bg: #1b1f20;
+  --shadow-color: rgba(0, 0, 0, 0.2);
+  --font-title-color: var(--accent-color);
+
+  --accent-color: var(--accent-color-dark-val, #fffea8);
+  --accent-color-light: var(--accent-color-dark-bg, rgba(255, 254, 168, 0.1));
+}
+
+/* Custom interactive input elements styling */
+.custom-input {
+  background-color: var(--input-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  border-radius: 8px;
+  font-family: inherit;
+  transition: all 0.2s ease-in-out;
+}
+
+.custom-input:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px var(--accent-color-light);
+}
+
+/* Customisable select — Chrome 135+ appearance: base-select */
+@supports (appearance: base-select) {
+  select {
+    appearance: base-select;
+  }
+
+  select::picker(select) {
+    appearance: base-select;
+    background-color: var(--input-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 4px;
+    box-shadow: 0 8px 24px var(--shadow-color);
+    min-width: 12rem;
+  }
+
+  option {
+    border-radius: 6px;
+    padding: 8px 12px;
+    cursor: pointer;
+    color: var(--text-main);
+  }
+
+  option:hover {
+    background-color: var(--accent-color-light);
+  }
+
+  option:checked {
+    background-color: var(--accent-color-light);
+    font-weight: 600;
+  }
+
+  /* Sentence-style selects: hide the picker icon — the dashed underline is the affordance */
+  .select-sentence::picker-icon {
+    display: none;
+  }
+}
+
+.custom-highlight {
+  color: var(--accent-color);
+  text-decoration-color: var(--accent-color);
+}
+
+.custom-card {
+  background-color: transparent;
+  color: var(--text-main);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Fluid type scale — vw is relative to the iframe width, not the page */
+  --fluid-display:  clamp(1.75rem, 6vw,   2.75rem);   /* repayment figure */
+  --fluid-title:    clamp(1.3rem,  3.5vw, 1.75rem);   /* card heading     */
+  --fluid-sentence: clamp(1.3rem, 3.2vw, 1.6rem);    /* sentence layout  */
+  --fluid-body:     clamp(0.8rem,  2.2vw, 1rem);       /* body / labels    */
+  --fluid-sm:       clamp(0.68rem, 1.8vw, 0.875rem);  /* captions / muted */
+  --fluid-xs:       clamp(0.6rem,  1.5vw, 0.75rem);   /* fine print       */
+}
+
+/* Apply fluid scale to heading and body elements within the embed */
+.custom-card h2  { font-size: var(--fluid-title); }
+.custom-card h3  { font-size: var(--fluid-display); }
+.custom-card p   { font-size: var(--fluid-body); }
+.sentence-text   { font-size: var(--fluid-sentence); }
+
+/* Sentence autogrow input styling */
+.autogrow-container {
+  display: inline-grid;
+  grid-template-columns: 0fr;
+  align-items: center;
+  position: relative;
+}
+
+.autogrow-container span {
+  grid-area: 1 / 1;
+  visibility: hidden;
+  white-space: pre;
+  padding: 0 0.5rem;
+}
+
+.autogrow-container input,
+.autogrow-container select {
+  grid-area: 1 / 1;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.autogrow-amount span {
+  padding: 0;
+}
+
+.autogrow-amount input {
+  padding: 0;
+  min-width: 4ch;
+}
+
+/* Fade-in-up results transition */
+.results-enter-active,
+.results-leave-active {
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.results-enter-from {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+.results-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+/* Crossfade transition (error <-> results) */
+.crossfade-enter-active,
+.crossfade-leave-active {
+  transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.crossfade-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.crossfade-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+/* Hide spin buttons for Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Hide spin buttons for Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+

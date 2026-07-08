@@ -27,4 +27,10 @@ Side note: the doc explaining the PMT function has restricted access
 
 - Refactor styles and remove overkill style library
 - Add a bit more flair to design
+  - Use dynamic input widths to allow for inline feel but limit content jumps with dynamic font sizes and custom breakpoints
+  - Add branded header and footer
+  - Add minor customisation options
 - Include tests
+
+Notes:
+- Thought about going with a web component for better customisability / dimensions fluidity / font inheritance. Being a fincance calculator thought you might prefer a little extra security and will stick with the iframe method
