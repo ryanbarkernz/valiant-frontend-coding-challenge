@@ -35,7 +35,7 @@
 
 /* Theme Classes */
 .theme-light {
-  --bg-color: #f8f8ff;
+  --bg-color: var(--bg-color-light-override, #ffffff);
   --text-main: #222222;
   --text-muted: #666666;
   --border-color: #d8d8e5;
@@ -48,7 +48,7 @@
 }
 
 .theme-dark {
-  --bg-color: #262c2d;
+  --bg-color: var(--bg-color-dark-override, #0a0a0a);
   --text-main: #ffffff;
   --text-muted: #a8adaf;
   --border-color: #373f41;

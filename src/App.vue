@@ -1,6 +1,6 @@
 <script setup>
 import { computed, defineAsyncComponent } from 'vue'
-import Calculator from '@/components/Calculator.vue'
+import LoanCalculator from '@/components/LoanCalculator.vue'
 
 defineOptions({
   name: 'App',
@@ -13,7 +13,7 @@ const isEmbedded = computed(() => {
 
 // Lazy-load the Dashboard so it is emitted as a separate JS + CSS chunk.
 // Embed-mode users never trigger this import, so they never download dashboard code.
-const Dashboard = defineAsyncComponent(() => import('@/components/Dashboard.vue'))
+const ValiantDashboard = defineAsyncComponent(() => import('@/components/ValiantDashboard.vue'))
 </script>
 
 <template>
@@ -22,7 +22,7 @@ const Dashboard = defineAsyncComponent(() => import('@/components/Dashboard.vue'
     v-if="isEmbedded"
     class="flex min-h-screen w-full items-center justify-center bg-transparent"
   >
-    <Calculator
+    <LoanCalculator
       :is-embed-mode="true"
       class="w-full max-w-4xl"
     />
@@ -30,6 +30,6 @@ const Dashboard = defineAsyncComponent(() => import('@/components/Dashboard.vue'
 
   <!-- Interactive preview sandbox dashboard -->
   <div v-else>
-    <Dashboard />
+    <ValiantDashboard />
   </div>
 </template>

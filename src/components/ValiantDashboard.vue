@@ -1,10 +1,12 @@
-<!-- eslint-disable vue/multi-word-component-names -->
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 
 // ---------- State ----------
 const accentLight = ref('#222222')
 const accentDark = ref('#fffea8')
+const bgLight = ref('#ffffff')
+const bgDark = ref('#0a0a0a')
+const bgTransparent = ref(false)
 const selectedTheme = ref('auto') // 'light' | 'dark' | 'auto'
 
 const iframeRef = ref(null)
@@ -72,6 +74,12 @@ const embedUrl = computed(() => {
   params.set('theme', selectedTheme.value)
   params.set('accent', accentLight.value.replace('#', ''))
   params.set('accentDark', accentDark.value.replace('#', ''))
+  if (bgTransparent.value) {
+    params.set('bgTransparent', 'true')
+  } else {
+    params.set('bgLight', bgLight.value.replace('#', ''))
+    params.set('bgDark', bgDark.value.replace('#', ''))
+  }
   return `${origin}?${params.toString()}`
 })
 
@@ -87,10 +95,13 @@ const onPreviewLoad = () => {
     theme: selectedTheme.value,
     accent: accentLight.value.replace('#', ''),
     accentDark: accentDark.value.replace('#', ''),
+    bgLight: bgLight.value.replace('#', ''),
+    bgDark: bgDark.value.replace('#', ''),
+    bgTransparent: bgTransparent.value,
   })
 }
 
-// Update default sizes when layout changes
+// Set initial height on mount
 onMounted(() => {
   iframeHeight.value = '260px'
 })
@@ -121,17 +132,20 @@ const sendPostMessage = (configPayload) => {
 }
 
 // Sync every control change to the live preview via postMessage
-watch([selectedTheme, accentLight, accentDark], () => {
+watch([selectedTheme, accentLight, accentDark, bgLight, bgDark, bgTransparent], () => {
   sendPostMessage({
     theme: selectedTheme.value,
     accent: accentLight.value.replace('#', ''),
     accentDark: accentDark.value.replace('#', ''),
+    bgLight: bgLight.value.replace('#', ''),
+    bgDark: bgDark.value.replace('#', ''),
+    bgTransparent: bgTransparent.value,
   })
 }, { deep: true })
 </script>
 
 <template>
-  <div class="font-sans flex min-h-screen flex-col bg-[#f8f8ff] text-neutral-800 transition-colors duration-300 dark:bg-[#262c2d] dark:text-neutral-100">
+  <div class="flex min-h-screen flex-col bg-[#f8f8ff] font-sans text-neutral-800 transition-colors duration-300 dark:bg-[#262c2d] dark:text-neutral-100">
     <!-- Header -->
     <header class="sticky top-0 z-10 flex items-center justify-between border-b border-neutral-200 bg-white/80 px-6 py-4 backdrop-blur-md transition-colors duration-300 dark:border-neutral-900 dark:bg-[#262c2d]/80">
       <div class="flex items-center gap-3">
@@ -146,9 +160,9 @@ watch([selectedTheme, accentLight, accentDark], () => {
     <!-- Main Workspace -->
     <div class="flex flex-1 flex-col overflow-hidden lg:flex-row">
       <!-- Left Sidebar: Configuration Controls -->
-      <aside class="w-full shrink-0 space-y-5 overflow-y-auto border-r border-neutral-200 bg-neutral-50 p-6 transition-colors duration-300 lg:w-[380px] dark:border-neutral-900 dark:bg-neutral-900/30">
+      <aside class="w-full shrink-0 space-y-5 overflow-y-auto border-r border-neutral-200 bg-neutral-50 p-6 transition-colors duration-300 dark:border-neutral-900 dark:bg-neutral-900/30 lg:w-[380px]">
         <div>
-          <h3 class="text-lg mb-1 font-bold tracking-wider text-neutral-800 dark:text-neutral-200">
+          <h3 class="mb-1 text-lg font-bold tracking-wider text-neutral-800 dark:text-neutral-200">
             Configuration Panel
           </h3>
           <p class="text-sm text-neutral-500 dark:text-neutral-400" />
@@ -190,7 +204,7 @@ watch([selectedTheme, accentLight, accentDark], () => {
             <input
               v-model="accentLight"
               type="text"
-              class="font-mono flex-1 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-800 focus:border-blue-500 focus:outline-none dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-300"
+              class="flex-1 rounded-lg border border-neutral-200 bg-white px-3 py-2 font-mono text-sm text-neutral-800 focus:border-blue-500 focus:outline-none dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-300"
               placeholder="#0055ff"
             >
           </div>
@@ -210,8 +224,72 @@ watch([selectedTheme, accentLight, accentDark], () => {
             <input
               v-model="accentDark"
               type="text"
-              class="font-mono text-xs flex-1 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-neutral-800 focus:border-blue-500 focus:outline-none dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-300"
+              class="flex-1 rounded-lg border border-neutral-200 bg-white px-3 py-2 font-mono text-xs text-neutral-800 focus:border-blue-500 focus:outline-none dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-300"
               placeholder="#38bdf8"
+            >
+          </div>
+        </div>
+
+        <hr class="border-neutral-200 dark:border-neutral-800">
+
+        <!-- Background Transparent Toggle -->
+        <div class="flex items-center gap-2">
+          <input
+            id="bg-transparent-toggle"
+            v-model="bgTransparent"
+            type="checkbox"
+            class="size-4 rounded border-neutral-300 text-blue-600 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900"
+          >
+          <label
+            for="bg-transparent-toggle"
+            class="text-sm font-semibold text-neutral-700 dark:text-neutral-300"
+          >
+            Transparent Background
+          </label>
+        </div>
+
+        <!-- Background Colour — Light -->
+        <div
+          v-if="!bgTransparent"
+          class="space-y-2"
+        >
+          <label class="text-base font-semibold text-neutral-700 dark:text-neutral-300">
+            Background Colour — Light Mode
+          </label>
+          <div class="flex items-center gap-3">
+            <input
+              v-model="bgLight"
+              type="color"
+              class="size-9 cursor-pointer rounded-lg border border-neutral-200 bg-white p-0.5 dark:border-neutral-700 dark:bg-neutral-900"
+            >
+            <input
+              v-model="bgLight"
+              type="text"
+              class="flex-1 rounded-lg border border-neutral-200 bg-white px-3 py-2 font-mono text-sm text-neutral-800 focus:border-blue-500 focus:outline-none dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-300"
+              placeholder="#f8f8ff"
+            >
+          </div>
+        </div>
+
+        <!-- Background Colour — Dark -->
+        <div
+          v-if="!bgTransparent"
+          class="space-y-2"
+        >
+          <label class="text-base font-semibold text-neutral-700 dark:text-neutral-300">
+            Background Colour — Dark Mode
+          </label>
+          <div class="flex items-center gap-3">
+            <input
+              v-model="bgDark"
+              type="color"
+              class="size-9 cursor-pointer rounded-lg border border-neutral-200 bg-white p-0.5 dark:border-neutral-700 dark:bg-neutral-900"
+            >
+            <input
+              v-model="bgDark"
+              type="text"
+              class="flex-1 rounded-lg border border-neutral-200 bg-white px-3 py-2 font-mono text-xs text-neutral-800 focus:border-blue-500 focus:outline-none dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-300"
+              placeholder="#262c2d"
             >
           </div>
         </div>
@@ -306,7 +384,7 @@ watch([selectedTheme, accentLight, accentDark], () => {
               Paste the snippet below into your site. Config is baked into the iframe URL query params.
             </p>
             <div class="relative">
-              <pre class="font-mono overflow-x-auto rounded-lg border border-neutral-200 bg-neutral-50 p-4 text-[11px] leading-relaxed text-neutral-800 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-300">{{ iframeCode }}</pre>
+              <pre class="overflow-x-auto rounded-lg border border-neutral-200 bg-neutral-50 p-4 font-mono text-[11px] leading-relaxed text-neutral-800 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-300">{{ iframeCode }}</pre>
               <button
                 :class="[
                   'absolute right-3 top-3 rounded-md px-3 py-1.5 text-sm font-bold transition',
@@ -329,20 +407,32 @@ watch([selectedTheme, accentLight, accentDark], () => {
             </h4>
             <div class="divide-y divide-neutral-200 text-sm dark:divide-neutral-900">
               <div class="flex flex-col gap-2 py-2.5 sm:flex-row sm:items-start">
-                <span class="font-mono shrink-0 rounded bg-blue-500/10 px-1.5 py-0.5 font-bold text-blue-600 dark:text-blue-400">embed=true</span>
+                <span class="shrink-0 rounded bg-blue-500/10 px-1.5 py-0.5 font-mono font-bold text-blue-600 dark:text-blue-400">embed=true</span>
                 <span class="text-neutral-600 dark:text-neutral-400">Required. Activates standalone embed mode, removing the developer dashboard shell.</span>
               </div>
               <div class="flex flex-col gap-2 py-2.5 sm:flex-row sm:items-start">
-                <span class="font-mono shrink-0 rounded bg-blue-500/10 px-1.5 py-0.5 font-bold text-blue-600 dark:text-blue-400">theme=[light|dark|auto]</span>
+                <span class="shrink-0 rounded bg-blue-500/10 px-1.5 py-0.5 font-mono font-bold text-blue-600 dark:text-blue-400">theme=[light|dark|auto]</span>
                 <span class="text-neutral-600 dark:text-neutral-400">Sets the base colour palette. Defaults to <code>auto</code> which responds to prefers-color-scheme.</span>
               </div>
               <div class="flex flex-col gap-2 py-2.5 sm:flex-row sm:items-start">
-                <span class="font-mono shrink-0 rounded bg-blue-500/10 px-1.5 py-0.5 font-bold text-blue-600 dark:text-blue-400">accent=[hex]</span>
+                <span class="shrink-0 rounded bg-blue-500/10 px-1.5 py-0.5 font-mono font-bold text-blue-600 dark:text-blue-400">accent=[hex]</span>
                 <span class="text-neutral-600 dark:text-neutral-400">Brand accent colour in light mode (no #). E.g. <code>accent=fa5252</code>.</span>
               </div>
               <div class="flex flex-col gap-2 py-2.5 sm:flex-row sm:items-start">
-                <span class="font-mono shrink-0 rounded bg-blue-500/10 px-1.5 py-0.5 font-bold text-blue-600 dark:text-blue-400">accentDark=[hex]</span>
+                <span class="shrink-0 rounded bg-blue-500/10 px-1.5 py-0.5 font-mono font-bold text-blue-600 dark:text-blue-400">accentDark=[hex]</span>
                 <span class="text-neutral-600 dark:text-neutral-400">Brand accent colour in dark mode (no #). E.g. <code>accentDark=38bdf8</code>.</span>
+              </div>
+              <div class="flex flex-col gap-2 py-2.5 sm:flex-row sm:items-start">
+                <span class="shrink-0 rounded bg-blue-500/10 px-1.5 py-0.5 font-mono font-bold text-blue-600 dark:text-blue-400">bgLight=[hex]</span>
+                <span class="text-neutral-600 dark:text-neutral-400">Background colour in light mode (no #). E.g. <code>bgLight=ffffff</code>.</span>
+              </div>
+              <div class="flex flex-col gap-2 py-2.5 sm:flex-row sm:items-start">
+                <span class="shrink-0 rounded bg-blue-500/10 px-1.5 py-0.5 font-mono font-bold text-blue-600 dark:text-blue-400">bgDark=[hex]</span>
+                <span class="text-neutral-600 dark:text-neutral-400">Background colour in dark mode (no #). E.g. <code>bgDark=0a0a0a</code>.</span>
+              </div>
+              <div class="flex flex-col gap-2 py-2.5 sm:flex-row sm:items-start">
+                <span class="shrink-0 rounded bg-blue-500/10 px-1.5 py-0.5 font-mono font-bold text-blue-600 dark:text-blue-400">bgTransparent=true</span>
+                <span class="text-neutral-600 dark:text-neutral-400">Set to <code>true</code> to make the background transparent, ignoring other background settings.</span>
               </div>
             </div>
           </div>
@@ -360,17 +450,18 @@ watch([selectedTheme, accentLight, accentDark], () => {
                 Push config updates to the widget at runtime — no iframe reload needed. Perfect for syncing your site's own light/dark mode toggle.
               </p>
             </div>
-            <pre class="font-mono overflow-x-auto rounded-lg border border-neutral-200 bg-neutral-50 p-4 text-[11px] leading-relaxed text-neutral-800 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-300">
-const frame = document.querySelector('iframe').contentWindow;
+            <pre class="overflow-x-auto rounded-lg border border-neutral-200 bg-neutral-50 p-4 font-mono text-[11px] leading-relaxed text-neutral-800 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-300">
+              const frame = document.querySelector('iframe').contentWindow;
 
-frame.postMessage({
-  type: 'UPDATE_VALIANT_CONFIG',
-  config: {
-    theme: 'dark',
-    accent: '0055ff',
-    accentDark: '38bdf8',
-  }
-}, '*');</pre>
+              frame.postMessage({
+                type: 'UPDATE_VALIANT_CONFIG',
+                config: {
+                  theme: 'dark',
+                  accent: '0055ff',
+                  accentDark: '38bdf8',
+                }
+              }, '*');
+            </pre>
             <div class="flex flex-wrap gap-2">
               <button
                 class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm font-bold transition hover:bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800 dark:hover:bg-neutral-700"
